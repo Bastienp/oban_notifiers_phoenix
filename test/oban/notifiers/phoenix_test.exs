@@ -1,6 +1,8 @@
 defmodule Oban.Notifiers.PhoenixTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureLog
+
   alias Oban.Notifier
 
   defmodule Repo do
@@ -32,12 +34,14 @@ defmodule Oban.Notifiers.PhoenixTest do
   test "notifying with complex types" do
     Notifier.listen([:insert, :gossip, :signal])
 
-    Notifier.notify(:signal, %{
-      date: ~D[2021-08-09],
-      keyword: [a: 1, b: 1],
-      map: %{tuple: {1, :second}},
-      tuple: {1, :second}
-    })
+    assert capture_log(fn ->
+             Notifier.notify(:signal, %{
+               date: ~D[2021-08-09],
+               keyword: [a: 1, b: 1],
+               map: %{tuple: {1, :second}},
+               tuple: {1, :second}
+             })
+           end) =~ "notify_phoenix_pubsub"
 
     assert_receive {:notification, :signal, notice}
     assert %{"date" => "2021-08-09", "keyword" => [["a", 1], ["b", 1]]} = notice

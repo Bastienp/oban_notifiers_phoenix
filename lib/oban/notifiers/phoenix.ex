@@ -10,6 +10,8 @@ defmodule Oban.Notifiers.Phoenix do
 
   use GenServer
 
+  require Logger
+
   alias Oban.Notifier
   alias Phoenix.PubSub
 
@@ -47,6 +49,13 @@ defmodule Oban.Notifiers.Phoenix do
   @impl Notifier
   def notify(server, channel, payload) do
     with {:ok, %{conf: conf, pubsub: pubsub}} <- GenServer.call(server, :get_state) do
+      Logger.info("notify_phoenix_pubsub",
+        server: server,
+        channel: channel,
+        payload: payload,
+        pubsub: pubsub
+      )
+
       PubSub.broadcast(pubsub, to_string(channel), {conf, channel, payload}, __MODULE__)
 
       :ok
