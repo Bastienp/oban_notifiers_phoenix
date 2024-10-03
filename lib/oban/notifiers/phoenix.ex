@@ -52,8 +52,9 @@ defmodule Oban.Notifiers.Phoenix do
       Logger.info("notify_phoenix_pubsub",
         server: server,
         channel: channel,
-        payload: payload,
-        pubsub: pubsub
+        payload: IO.inspect(payload),
+        pubsub: pubsub,
+        conf: conf
       )
 
       PubSub.broadcast(pubsub, to_string(channel), {conf, channel, payload}, __MODULE__)
